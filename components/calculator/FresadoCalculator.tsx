@@ -42,6 +42,112 @@ export default function FresadoCalculator({ onBack }: FresadoCalculatorProps) {
     loadData();
   }, []);
 
+  // Efectos para cálculos automáticos
+  useEffect(() => {
+    // Auto-calcular N cuando cambian D o Vc
+    const d = parseFloat(textD);
+    const vc = parseFloat(textVc);
+    if (d > 0 && vc > 0 && textD !== '0' && textVc !== '0') {
+      const result = ((vc * 1000) / (Math.PI * d)).toFixed(2);
+      if (result !== textN) {
+        setTextN(result);
+        saveValue('fresado-n', result);
+      }
+    }
+  }, [textD, textVc]);
+
+  useEffect(() => {
+    // Auto-calcular Vc cuando cambian D o N
+    const d = parseFloat(textD);
+    const n = parseFloat(textN);
+    if (d > 0 && n > 0 && textD !== '0' && textN !== '0') {
+      const result = ((Math.PI * d * n) / 1000).toFixed(2);
+      if (result !== textVc) {
+        setTextVc(result);
+        saveValue('fresado-vc', result);
+      }
+    }
+  }, [textD, textN]);
+
+  useEffect(() => {
+    // Auto-calcular fz cuando cambian fn o Z
+    const fn = parseFloat(textfn);
+    const z = parseFloat(textZ);
+    if (fn > 0 && z > 0 && textfn !== '0' && textZ !== '0') {
+      const result = (fn / z).toFixed(3);
+      if (result !== textfz) {
+        setTextfz(result);
+        saveValue('fresado-fz', result);
+      }
+    }
+  }, [textfn, textZ]);
+
+  useEffect(() => {
+    // Auto-calcular fn cuando cambian fz o Z
+    const fz = parseFloat(textfz);
+    const z = parseFloat(textZ);
+    if (fz > 0 && z > 0 && textfz !== '0' && textZ !== '0') {
+      const result = (fz * z).toFixed(3);
+      if (result !== textfn) {
+        setTextfn(result);
+        saveValue('fresado-fn', result);
+      }
+    }
+  }, [textfz, textZ]);
+
+  useEffect(() => {
+    // Auto-calcular vf cuando cambian fn o N
+    const fn = parseFloat(textfn);
+    const n = parseFloat(textN);
+    if (fn > 0 && n > 0 && textfn !== '0' && textN !== '0') {
+      const result = (fn * n).toFixed(2);
+      if (result !== textvf) {
+        setTextvf(result);
+        saveValue('fresado-vf', result);
+      }
+    }
+  }, [textfn, textN]);
+
+  useEffect(() => {
+    // Auto-calcular tc cuando cambian vf o lm
+    const vf = parseFloat(textvf);
+    const lm = parseFloat(textlm);
+    if (vf > 0 && lm > 0 && textvf !== '0' && textlm !== '0') {
+      const result = (lm / vf).toFixed(3);
+      if (result !== texttc) {
+        setTexttc(result);
+        saveValue('fresado-tc', result);
+      }
+    }
+  }, [textvf, textlm]);
+
+  useEffect(() => {
+    // Auto-calcular Q cuando cambian ap, ae o vf
+    const ap = parseFloat(textap);
+    const ae = parseFloat(textae);
+    const vf = parseFloat(textvf);
+    if (ap > 0 && ae > 0 && vf > 0 && textap !== '0' && textae !== '0' && textvf !== '0') {
+      const result = ((ap * ae * vf) / 1000).toFixed(3);
+      if (result !== textQ) {
+        setTextQ(result);
+        saveValue('fresado-q', result);
+      }
+    }
+  }, [textap, textae, textvf]);
+
+  useEffect(() => {
+    // Auto-calcular np cuando cambian ca o ae
+    const ca = parseFloat(textoCa);
+    const ae = parseFloat(textae);
+    if (ca > 0 && ae > 0 && textoCa !== '0' && textae !== '0') {
+      const result = Math.ceil(ca / ae).toString();
+      if (result !== textnp) {
+        setTextnp(result);
+        saveValue('fresado-np', result);
+      }
+    }
+  }, [textoCa, textae]);
+
   const loadData = async () => {
     try {
       const keys = [

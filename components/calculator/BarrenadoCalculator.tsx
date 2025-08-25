@@ -37,6 +37,98 @@ export default function BarrenadoCalculator({ onBack }: BarrenadoCalculatorProps
     loadData();
   }, []);
 
+  // Efectos para cálculos automáticos
+  useEffect(() => {
+    // Auto-calcular N cuando cambian D o Vc
+    const d = parseFloat(textD);
+    const vc = parseFloat(textVc);
+    if (d > 0 && vc > 0 && textD !== '0' && textVc !== '0') {
+      const result = ((vc * 1000) / (Math.PI * d)).toFixed(2);
+      if (result !== textN) {
+        setTextN(result);
+        saveValue('barrenado-n', result);
+      }
+    }
+  }, [textD, textVc]);
+
+  useEffect(() => {
+    // Auto-calcular Vc cuando cambian D o N
+    const d = parseFloat(textD);
+    const n = parseFloat(textN);
+    if (d > 0 && n > 0 && textD !== '0' && textN !== '0') {
+      const result = ((Math.PI * d * n) / 1000).toFixed(2);
+      if (result !== textVc) {
+        setTextVc(result);
+        saveValue('barrenado-vc', result);
+      }
+    }
+  }, [textD, textN]);
+
+  useEffect(() => {
+    // Auto-calcular fz cuando cambian fn o Z
+    const fn = parseFloat(textfn);
+    const z = parseFloat(textZ);
+    if (fn > 0 && z > 0 && textfn !== '0' && textZ !== '0') {
+      const result = (fn / z).toFixed(3);
+      if (result !== textfz) {
+        setTextfz(result);
+        saveValue('barrenado-fz', result);
+      }
+    }
+  }, [textfn, textZ]);
+
+  useEffect(() => {
+    // Auto-calcular fn cuando cambian fz o Z
+    const fz = parseFloat(textfz);
+    const z = parseFloat(textZ);
+    if (fz > 0 && z > 0 && textfz !== '0' && textZ !== '0') {
+      const result = (fz * z).toFixed(3);
+      if (result !== textfn) {
+        setTextfn(result);
+        saveValue('barrenado-fn', result);
+      }
+    }
+  }, [textfz, textZ]);
+
+  useEffect(() => {
+    // Auto-calcular vf cuando cambian fn o N
+    const fn = parseFloat(textfn);
+    const n = parseFloat(textN);
+    if (fn > 0 && n > 0 && textfn !== '0' && textN !== '0') {
+      const result = (fn * n).toFixed(2);
+      if (result !== textvf) {
+        setTextvf(result);
+        saveValue('barrenado-vf', result);
+      }
+    }
+  }, [textfn, textN]);
+
+  useEffect(() => {
+    // Auto-calcular tc cuando cambia vf
+    const vf = parseFloat(textvf);
+    const l = 10; // Longitud fija para el ejemplo
+    if (vf > 0 && textvf !== '0') {
+      const result = (l / vf).toFixed(3);
+      if (result !== texttc) {
+        setTexttc(result);
+        saveValue('barrenado-tc', result);
+      }
+    }
+  }, [textvf]);
+
+  useEffect(() => {
+    // Auto-calcular Q cuando cambian D o vf
+    const d = parseFloat(textD);
+    const vf = parseFloat(textvf);
+    if (d > 0 && vf > 0 && textD !== '0' && textvf !== '0') {
+      const result = ((Math.PI * Math.pow(d, 2) * vf) / 4000).toFixed(3);
+      if (result !== textQ) {
+        setTextQ(result);
+        saveValue('barrenado-q', result);
+      }
+    }
+  }, [textD, textvf]);
+
   const loadData = async () => {
     try {
       const keys = [
