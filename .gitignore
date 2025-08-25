@@ -330,3 +330,7 @@ basecode/calculadora_react-develop/src/screens/SettingsScreen.tsx
 basecode/calculadora_react-develop/src/screens/SignInScreen.tsx
 basecode/calculadora_react-develop/src/screens/UpdateDataUserScreen.tsx
 basecode/calculadora_react-develop/src/screens/UpdatePasswordScreen.tsx
+basecode/calculadora_react-develop/ios/Elmec.xcodeproj/xcshareddata/xcschemes/Elmec.xcscheme.xml
+basecode/calculadora_react-develop/ios/Elmec.xcworkspace/contents.xcworkspacedata.xml
+basecode/calculadora_react-develop/ios/Elmec/Elmec.entitlements.xml
+basecode/calculadora_react-develop/ios/Elmec/LaunchScreen.storyboard.xml

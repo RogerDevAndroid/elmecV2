@@ -38,8 +38,8 @@ export default function Login() {
       );
       
       if (isValidUser) {
-        // Login exitoso - redirigir a la app principal
-        router.replace('/(tabs)');
+        // Login exitoso - redirigir al dashboard
+        router.replace('/(tabs)/');
       } else {
         Alert.alert('Error', 'Credenciales incorrectas. Usa las credenciales de prueba mostradas abajo.');
       }
