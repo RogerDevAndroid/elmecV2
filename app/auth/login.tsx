@@ -20,12 +20,28 @@ export default function Login() {
     }
 
     setLoading(true);
+    
+    // Simulamos un delay de autenticación
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     try {
-      const success = await login(email, password);
-      if (success) {
-        router.replace('/(tabs)');
+      // Credenciales hardcodeadas para demo local
+      const validCredentials = [
+        { email: 'test@elmec.com', password: 'password' },
+        { email: 'demo@elmec.com', password: 'demo123' },
+        { email: 'admin@elmec.com', password: 'admin123' },
+        { email: 'user@elmec.com', password: 'user123' }
+      ];
+      
+      const isValidUser = validCredentials.some(
+        cred => cred.email.toLowerCase() === email.toLowerCase() && cred.password === password
+      );
+      
+      if (isValidUser) {
+        // Login exitoso - redirigir al dashboard
+        router.replace('/(tabs)/');
       } else {
-        Alert.alert('Error', 'Credenciales incorrectas');
+        Alert.alert('Error', 'Credenciales incorrectas. Usa las credenciales de prueba mostradas abajo.');
       }
     } catch (error) {
       Alert.alert('Error', 'Error al iniciar sesión');
@@ -102,9 +118,11 @@ export default function Login() {
         </View>
 
         <View style={styles.testCredentials}>
-          <Text style={styles.testTitle}>Credenciales de prueba:</Text>
-          <Text style={styles.testText}>Email: test@elmec.com</Text>
-          <Text style={styles.testText}>Contraseña: password</Text>
+          <Text style={styles.testTitle}>Credenciales de prueba disponibles:</Text>
+          <Text style={styles.testText}>• test@elmec.com / password</Text>
+          <Text style={styles.testText}>• demo@elmec.com / demo123</Text>
+          <Text style={styles.testText}>• admin@elmec.com / admin123</Text>
+          <Text style={styles.testText}>• user@elmec.com / user123</Text>
         </View>
       </ScrollView>
     </LinearGradient>
