@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(chmod:*)",
+      "Bash(./setup_database.sh:*)",
+      "Bash(./create_sample_data.sh:*)",
+      "Bash(./setup_security.sh)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
