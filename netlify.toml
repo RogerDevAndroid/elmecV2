@@ -1,10 +1,13 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "node build-web.js"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   NPM_VERSION = "9"
+  EXPO_PLATFORM = "web"
+  EXPO_PUBLIC_SUPABASE_URL = "https://aoghysichevnuaddsocl.supabase.co"
+  EXPO_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZ2h5c2ljaGV2bnVhZGRzb2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMjQ5NjEsImV4cCI6MjA3MjgwMDk2MX0.SJE9eh1uQSXmYEXe2S6d9QZYta8V6AGkP1huj72DgrI"
 
 [[redirects]]
   from = "/*"
