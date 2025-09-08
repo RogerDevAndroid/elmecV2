@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
-import { SupabaseAuthProvider } from '@/contexts/SupabaseAuthContext';
-import { NotificationProvider } from '@/contexts/NotificationContext';
-import { NotificationManager } from '@/components/NotificationToast';
-import { AnalyticsProvider } from '@/components/AnalyticsProvider';
+import { SupabaseAuthProvider } from '../contexts/SupabaseAuthContext';
+import { NotificationProvider } from '../contexts/NotificationContext';
+import { NotificationManager } from '../components/NotificationToast';
+import { AnalyticsProvider } from '../components/AnalyticsProvider';
 import { Provider } from 'react-redux';
-import { store } from '@/store';
-import '@/i18n';
+import { store } from '../store';
+import '../i18n';
 
 SplashScreen.preventAutoHideAsync();
 

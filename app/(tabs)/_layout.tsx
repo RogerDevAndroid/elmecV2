@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from 'expo-router';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 import { useEffect } from 'react';
 import { Chrome as Home, Users, FileText, Calculator, User, MessageCircle } from 'lucide-react-native';
 import { View, Text, StyleSheet } from 'react-native';

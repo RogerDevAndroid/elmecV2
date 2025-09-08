@@ -15,9 +15,16 @@ config.resolver.alias = {
   '@/contexts/ChatContext': path.resolve(__dirname, 'contexts/ChatContext.tsx'),
 };
 
-// Ensure proper module resolution
+// Ensure proper module resolution with platform-specific extensions
 config.resolver.platforms = ['web', 'native', 'ios', 'android'];
 config.resolver.sourceExts = ['js', 'jsx', 'ts', 'tsx', 'json', 'mjs', 'cjs'];
+
+// Platform-specific extensions
+config.resolver.sourceExts = [
+  'web.js', 'web.jsx', 'web.ts', 'web.tsx',
+  'js', 'jsx', 'ts', 'tsx',
+  'json', 'mjs', 'cjs'
+];
 
 // Handle CommonJS modules
 config.resolver.resolverMainFields = ['react-native', 'browser', 'main'];
