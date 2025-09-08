@@ -4,9 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
-import { FirebaseAuthProvider } from '@/contexts/FirebaseAuthContext';
-import { FirebaseNotificationProvider } from '@/contexts/FirebaseNotificationContext';
-import { FirebaseChatProvider } from '@/contexts/FirebaseChatContext';
+import { SupabaseAuthProvider } from '@/contexts/SupabaseAuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/NotificationToast';
 import { AnalyticsProvider } from '@/components/AnalyticsProvider';
@@ -38,23 +36,19 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <FirebaseAuthProvider>
+      <SupabaseAuthProvider>
         <NotificationProvider>
-          <FirebaseNotificationProvider>
-            <FirebaseChatProvider>
-              <AnalyticsProvider>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="auth" options={{ headerShown: false }} />
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                  <Stack.Screen name="+not-found" />
-                </Stack>
-                <StatusBar style="auto" />
-                <NotificationManager />
-              </AnalyticsProvider>
-            </FirebaseChatProvider>
-        </FirebaseNotificationProvider>
-       </NotificationProvider>
-     </FirebaseAuthProvider>
-   </Provider>
+          <AnalyticsProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+            <NotificationManager />
+          </AnalyticsProvider>
+        </NotificationProvider>
+      </SupabaseAuthProvider>
+    </Provider>
   );
 }

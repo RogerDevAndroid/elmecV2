@@ -11,7 +11,13 @@
       "Bash(eas:*)",
       "Bash(npm run test:*)",
       "Bash(npm run dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git config:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(npm run build:*)",
+      "Bash(EXPO_PLATFORM=web npm run build)"
     ],
     "deny": [],
     "ask": []
