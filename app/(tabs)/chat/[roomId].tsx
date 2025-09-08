@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useChat, ChatMessage } from '@/contexts/ChatContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { 
@@ -44,7 +44,7 @@ const emojiCategories = {
 export default function ChatRoom() {
   const { roomId } = useLocalSearchParams<{ roomId: string }>();
   const { messages, sendMessage, getChatRoom, markMessagesAsRead } = useChat();
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   

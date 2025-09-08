@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { ArrowLeft, Building, User, Mail, Phone, MapPin } from 'lucide-react-native';
 
 export default function Register() {
@@ -18,7 +18,7 @@ export default function Register() {
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register } = useFirebaseAuth();
   const router = useRouter();
 
   const updateField = (field: string, value: string) => {

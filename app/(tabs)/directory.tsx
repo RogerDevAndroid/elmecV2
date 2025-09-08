@@ -1,93 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Linking } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Linking, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useChat } from '@/contexts/ChatContext';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
+import { FirebaseService } from '@/services/firebaseService';
+import { User as FirebaseUser } from '@/types/firebase';
 import { Search, Filter, Phone, Mail, MessageCircle, Send, MapPin } from 'lucide-react-native';
 
-interface PersonnelMember {
-  id: string;
-  idCorto: string;
-  nombreCompleto: string;
-  correoElectronico: string;
-  telefono: string;
-  zona: string;
-  categoria: 'Agentes de venta' | 'Servicio al Cliente' | 'Soporte';
-  activo: boolean;
-}
-
-const mockPersonnel: PersonnelMember[] = [
-  {
-    id: '1',
-    idCorto: 'AV001',
-    nombreCompleto: 'Luis Ramírez González',
-    correoElectronico: 'luis.ramirez@elmec.com',
-    telefono: '+52 55 1234 5678',
-    zona: 'Norte',
-    categoria: 'Agentes de venta',
-    activo: true,
-  },
-  {
-    id: '2',
-    idCorto: 'SC002',
-    nombreCompleto: 'Ana García Martínez',
-    correoElectronico: 'ana.garcia@elmec.com',
-    telefono: '+52 55 2345 6789',
-    zona: 'Sur',
-    categoria: 'Servicio al Cliente',
-    activo: true,
-  },
-  {
-    id: '3',
-    idCorto: 'SP003',
-    nombreCompleto: 'Carlos Mendoza López',
-    correoElectronico: 'carlos.mendoza@elmec.com',
-    telefono: '+52 55 3456 7890',
-    zona: 'Centro',
-    categoria: 'Soporte',
-    activo: true,
-  },
-  {
-    id: '4',
-    idCorto: 'AV004',
-    nombreCompleto: 'María Torres Ruiz',
-    correoElectronico: 'maria.torres@elmec.com',
-    telefono: '+52 55 4567 8901',
-    zona: 'Este',
-    categoria: 'Agentes de venta',
-    activo: true,
-  },
-  {
-    id: '5',
-    idCorto: 'SC005',
-    nombreCompleto: 'José Hernández Silva',
-    correoElectronico: 'jose.hernandez@elmec.com',
-    telefono: '+52 55 5678 9012',
-    zona: 'Oeste',
-    categoria: 'Servicio al Cliente',
-    activo: true,
-  },
-];
+type PersonnelMember = FirebaseUser;
 
 export default function Directory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [selectedZone, setSelectedZone] = useState<string>('Todas');
   const [showFilters, setShowFilters] = useState(false);
+  const [personnel, setPersonnel] = useState<PersonnelMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const { createChatRoom } = useChat();
   const { sendDemoNotification } = useNotifications();
+  const { user } = useFirebaseAuth();
   const router = useRouter();
 
   const categories = ['Todos', 'Agentes de venta', 'Servicio al Cliente', 'Soporte'];
   const zones = ['Todas', 'Norte', 'Sur', 'Centro', 'Este', 'Oeste'];
 
-  const filteredPersonnel = mockPersonnel.filter(person => {
+  useEffect(() => {
+    loadPersonnel();
+  }, []);
+
+  const loadPersonnel = async () => {
+    try {
+      setLoading(true);
+      const users = await FirebaseService.getDirectoryUsers();
+      setPersonnel(users.filter(u => u.activo));
+    } catch (error) {
+      console.error('Error loading personnel:', error);
+      Alert.alert('Error', 'No se pudo cargar el directorio');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredPersonnel = personnel.filter(person => {
     const matchesSearch = person.nombreCompleto.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          person.idCorto.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'Todos' || person.categoria === selectedCategory;
     const matchesZone = selectedZone === 'Todas' || person.zona === selectedZone;
-    return matchesSearch && matchesCategory && matchesZone && person.activo;
+    return matchesSearch && matchesCategory && matchesZone;
   });
 
   const handleCall = (phoneNumber: string) => {
@@ -142,12 +103,32 @@ export default function Directory() {
         { 
           text: 'Enviar', 
           onPress: async () => {
-            await sendDemoNotification(
-              'Solicitud enviada',
-              `Solicitud enviada a ${person.nombreCompleto}`,
-              'success'
-            );
-            Alert.alert('Éxito', 'Solicitud enviada correctamente');
+            if (!user) {
+              Alert.alert('Error', 'Debes estar autenticado para enviar solicitudes');
+              return;
+            }
+            
+            try {
+              await FirebaseService.createRequest({
+                titulo: `Solicitud para ${person.nombreCompleto}`,
+                descripcion: `Solicitud enviada desde el directorio`,
+                categoria: 'General',
+                prioridad: 'Media',
+                usuarioId: user.uid,
+                agenteAsignado: person.id,
+                estado: 'Pendiente'
+              });
+              
+              await sendDemoNotification(
+                'Solicitud enviada',
+                `Solicitud enviada a ${person.nombreCompleto}`,
+                'success'
+              );
+              Alert.alert('Éxito', 'Solicitud enviada correctamente');
+            } catch (error) {
+              console.error('Error sending request:', error);
+              Alert.alert('Error', 'No se pudo enviar la solicitud');
+            }
           }
         }
       ]
@@ -244,7 +225,12 @@ export default function Directory() {
       )}
 
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-        {filteredPersonnel.map((person) => (
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#1e40af" />
+            <Text style={styles.loadingText}>Cargando directorio...</Text>
+          </View>
+        ) : filteredPersonnel.map((person) => (
           <View key={person.id} style={styles.personCard}>
             <View style={styles.personHeader}>
               <View style={styles.personInfo}>
@@ -313,7 +299,7 @@ export default function Directory() {
           </View>
         ))}
 
-        {filteredPersonnel.length === 0 && (
+        {!loading && filteredPersonnel.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No se encontró personal con los filtros seleccionados</Text>
           </View>
@@ -515,6 +501,17 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    gap: 16,
+  },
+  loadingText: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: '#6b7280',

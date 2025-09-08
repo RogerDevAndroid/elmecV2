@@ -173,6 +173,7 @@ export class FirebaseService {
           body: `Se te ha asignado la solicitud: ${request.titulo}`,
           type: 'assignment',
           priority: 'medium',
+          channels: ['push'],
           data: { requestId: request.id }
         });
       }
@@ -214,6 +215,7 @@ export class FirebaseService {
         body: `Tu solicitud "${request.titulo}" ha sido ${status}`,
         type: 'request_update',
         priority: 'medium',
+        channels: ['push'],
         data: { requestId }
       });
 

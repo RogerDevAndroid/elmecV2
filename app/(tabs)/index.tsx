@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useRouter } from 'expo-router';
 import { Users, FileText, Calculator, Clock, CircleCheck as CheckCircle, CircleAlert as AlertCircle } from 'lucide-react-native';
+import { FirebaseService } from '@/services/firebaseService';
+import { Request as FirebaseRequest } from '@/types/firebase';
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const router = useRouter();
+  const [recentRequests, setRecentRequests] = useState<FirebaseRequest[]>([]);
+  const [stats, setStats] = useState({
+    totalRequests: 0,
+    inProgressRequests: 0,
+    completedRequests: 0
+  });
+  const [loading, setLoading] = useState(true);
 
   const quickActions = [
     {
@@ -33,32 +42,40 @@ export default function Home() {
     },
   ];
 
-  const recentActivity = [
-    {
-      id: '1',
-      type: 'solicitud',
-      title: 'Solicitud de soporte técnico',
-      status: 'en_proceso',
-      time: '2 horas',
-      agent: 'Carlos Mendoza',
-    },
-    {
-      id: '2',
-      type: 'solicitud',
-      title: 'Consulta sobre facturación',
-      status: 'resuelto',
-      time: '1 día',
-      agent: 'Ana García',
-    },
-    {
-      id: '3',
-      type: 'contacto',
-      title: 'Llamada a ventas',
-      status: 'completado',
-      time: '3 días',
-      agent: 'Luis Ramírez',
-    },
-  ];
+  // Load user data and statistics
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (!user?.uid) return;
+      
+      try {
+        setLoading(true);
+        
+        // Load recent requests
+         const requests = await FirebaseService.getUserRequests(user.uid, user.categoria || 'Cliente');
+         const sortedRequests = requests
+           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+           .slice(0, 3);
+         setRecentRequests(sortedRequests);
+        
+        // Calculate statistics
+        const totalRequests = requests.length;
+        const inProgressRequests = requests.filter(r => r.estatus === 'en_proceso' || r.estatus === 'asignado').length;
+        const completedRequests = requests.filter(r => r.estatus === 'resuelto' || r.estatus === 'cerrado').length;
+        
+        setStats({
+          totalRequests,
+          inProgressRequests,
+          completedRequests
+        });
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadDashboardData();
+  }, [user]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -129,23 +146,37 @@ export default function Home() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Actividad Reciente</Text>
           <View style={styles.activityList}>
-            {recentActivity.map((item) => (
-              <View key={item.id} style={styles.activityItem}>
-                <View style={styles.activityIcon}>
-                  {getStatusIcon(item.status)}
-                </View>
-                <View style={styles.activityContent}>
-                  <Text style={styles.activityTitle}>{item.title}</Text>
-                  <Text style={styles.activityAgent}>Con: {item.agent}</Text>
-                  <View style={styles.activityMeta}>
-                    <Text style={styles.activityStatus}>
-                      {getStatusText(item.status)}
-                    </Text>
-                    <Text style={styles.activityTime}>hace {item.time}</Text>
+            {loading ? (
+              <Text style={styles.loadingText}>Cargando...</Text>
+            ) : recentRequests.length > 0 ? (
+              recentRequests.map((request) => (
+                <TouchableOpacity
+                  key={request.id}
+                  style={styles.activityItem}
+                  onPress={() => router.push('/requests')}
+                >
+                  <View style={styles.activityIcon}>
+                    {getStatusIcon(request.estatus)}
                   </View>
-                </View>
-              </View>
-            ))}
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>{request.titulo}</Text>
+                    <Text style={styles.activityAgent}>
+                      {request.agenteId ? `Asignado a agente` : 'Sin asignar'}
+                    </Text>
+                    <View style={styles.activityMeta}>
+                      <Text style={styles.activityStatus}>
+                        {getStatusText(request.estatus)}
+                      </Text>
+                      <Text style={styles.activityTime}>
+                        {new Date(request.createdAt).toLocaleDateString('es-ES')}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.emptyText}>No hay solicitudes recientes</Text>
+            )}
           </View>
         </View>
 
@@ -153,19 +184,19 @@ export default function Home() {
           <Text style={styles.sectionTitle}>Estadísticas</Text>
           <View style={styles.statsContainer}>
             <View style={styles.statCard}>
-              <Text style={styles.statNumber}>5</Text>
+              <Text style={styles.statNumber}>{loading ? '-' : stats.totalRequests}</Text>
               <Text style={styles.statLabel}>Solicitudes</Text>
-              <Text style={styles.statSubLabel}>Este mes</Text>
+              <Text style={styles.statSubLabel}>Total</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statNumber}>2</Text>
+              <Text style={styles.statNumber}>{loading ? '-' : stats.inProgressRequests}</Text>
               <Text style={styles.statLabel}>En proceso</Text>
               <Text style={styles.statSubLabel}>Activas</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Contactos</Text>
-              <Text style={styles.statSubLabel}>Realizados</Text>
+              <Text style={styles.statNumber}>{loading ? '-' : stats.completedRequests}</Text>
+              <Text style={styles.statLabel}>Completadas</Text>
+              <Text style={styles.statSubLabel}>Resueltas</Text>
             </View>
           </View>
         </View>
@@ -363,5 +394,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Inter-Regular',
     color: '#6b7280',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#9ca3af',
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#9ca3af',
+    textAlign: 'center',
+    paddingVertical: 20,
   },
 });

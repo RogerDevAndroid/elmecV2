@@ -3,13 +3,13 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useChat } from '@/contexts/ChatContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { Search, MessageCircle, Clock } from 'lucide-react-native';
 
 export default function ChatList() {
   const [searchQuery, setSearchQuery] = useState('');
   const { chatRooms, messages } = useChat();
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const router = useRouter();
 
   const filteredRooms = chatRooms.filter(room => {

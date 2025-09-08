@@ -1,17 +1,15 @@
 import { Tabs, useRouter } from 'expo-router';
-import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
-import { useFirebaseChat } from '@/contexts/FirebaseChatContext';
-import { useFirebaseNotifications } from '@/contexts/FirebaseNotificationContext';
+import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 import { useEffect } from 'react';
 import { Chrome as Home, Users, FileText, Calculator, User, MessageCircle } from 'lucide-react-native';
 import { View, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
-  const { isAuthenticated } = useFirebaseAuth();
-  const { getUnreadCount } = useFirebaseChat();
-  const { unreadCount: notificationUnreadCount } = useFirebaseNotifications();
+  const { user } = useSupabaseAuth();
   const router = useRouter();
-  const unreadCount = getUnreadCount();
+  const isAuthenticated = !!user;
+  const unreadCount = 0; // Placeholder for now
+  const notificationUnreadCount = 0; // Placeholder for now
 
   useEffect(() => {
     if (!isAuthenticated) {

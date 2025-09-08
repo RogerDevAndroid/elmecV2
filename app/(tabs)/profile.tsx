@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useRouter } from 'expo-router';
 import { User, Building, Mail, Phone, MapPin, Settings, LogOut, Bell, Shield, CircleHelp as HelpCircle, Trash2 } from 'lucide-react-native';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useFirebaseAuth();
   const { 
     inAppNotifications, 
     unreadCount, 
